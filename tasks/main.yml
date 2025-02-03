@@ -1,0 +1,89 @@
+---
+# Main tasks file for loki role
+
+- name: Include OS-specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "default.yml"
+  tags: always
+
+- name: Include prerequisites tasks
+  ansible.builtin.include_tasks: prerequisites.yml
+  tags: loki_setup
+
+- name: Create Loki directory
+  ansible.builtin.file:
+    path: "{{ loki_install_dir }}"
+    state: directory
+    mode: '0755'
+  tags: loki_setup
+
+- name: Clone Loki repository
+  ansible.builtin.git:
+    repo: "{{ loki_git_repo }}"
+    dest: "{{ loki_install_dir }}/Loki"
+    version: "{{ loki_git_version }}"
+  tags: loki_setup
+
+- name: Install Python requirements
+  ansible.builtin.pip:
+    requirements: "{{ loki_install_dir }}/Loki/requirements.txt"
+    state: present
+  tags: loki_setup
+
+- name: Ensure signatures are up to date
+  ansible.builtin.command:
+    cmd: python3 {{ loki_install_dir }}/Loki/tools/download-signatures.py
+    chdir: "{{ loki_install_dir }}/Loki"
+  changed_when: false
+  tags: loki_update
+
+- name: Include custom rules tasks
+  ansible.builtin.include_tasks: custom_rules.yml
+  when: loki_custom_rules_path != "" or loki_custom_rules_files | length > 0
+  tags:
+    - loki_setup
+    - loki_rules
+
+- name: Run Loki scan
+  ansible.builtin.command:
+    cmd: "python3 loki.py {{ loki_scan_args }}"
+    chdir: "{{ loki_install_dir }}/Loki"
+    creates: "{{ loki_install_dir }}/Loki/.last_scan"
+  register: loki_scan_result
+  changed_when: loki_scan_result.rc != 0 or loki_scan_result.stdout_lines | length > 0
+  notify: Touch last scan marker file
+  tags: loki_scan
+
+- name: Create report directory on control node
+  ansible.builtin.file:
+    path: "{{ loki_report_dir }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  tags: loki_report
+
+- name: Fetch scan report
+  ansible.builtin.fetch:
+    src: "{{ loki_install_dir }}/Loki/{{ loki_report_filename }}"
+    dest: "{{ loki_report_dir }}/{{ inventory_hostname }}-{{ loki_report_name }}"
+    flat: true
+  tags: loki_report
+
+- name: Create handlers directory if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/handlers"
+    state: directory
+    mode: '0755'
+
+- name: Run Loki scan
+  ansible.builtin.command:
+    cmd: "python3 loki.py {{ loki_scan_args }}"
+    chdir: "{{ loki_install_dir }}/Loki"
+    creates: "{{ loki_install_dir }}/Loki/.last_scan"
+  register: loki_scan_result
+  changed_when: loki_scan_result.rc != 0 or loki_scan_result.stdout_lines | length > 0
+  notify: Touch last scan marker file
+  tags: loki_scan

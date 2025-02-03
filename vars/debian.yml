@@ -1,0 +1,11 @@
+---
+# Variables specific to Debian family distributions
+
+python_pkg: python3
+pip_pkg: python3-pip
+
+required_packages:
+  - git
+  - python3
+  - python3-pip
+  - python3-dev

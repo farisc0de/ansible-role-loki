@@ -1,0 +1,29 @@
+---
+# Prerequisites tasks for loki role
+
+- name: Update apt cache (Debian/Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+  tags: loki_setup
+
+- name: Install required packages (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name: "{{ required_packages }}"
+    state: present
+  when: ansible_os_family == "Debian"
+  tags: loki_setup
+
+- name: Install EPEL repository (RedHat)
+  ansible.builtin.include_role:
+    name: farisc0de.epel
+  when: ansible_os_family == "RedHat"
+  tags: loki_setup
+
+- name: Install required packages (RedHat)
+  ansible.builtin.dnf:
+    name: "{{ required_packages }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+  tags: loki_setup

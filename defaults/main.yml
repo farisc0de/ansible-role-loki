@@ -1,0 +1,21 @@
+---
+# defaults file for loki role
+
+# Installation settings
+loki_install_dir: /opt/loki
+loki_git_repo: "https://github.com/Neo23x0/Loki.git"
+loki_git_version: "master"
+
+# Custom YARA rules settings
+loki_custom_rules_dir: "{{ loki_install_dir }}/Loki/signature-base/custom"
+loki_custom_rules_path: ""  # Local path to custom YARA rules directory
+loki_custom_rules_files: []  # List of custom YARA rule files to copy
+loki_delete_existing_custom_rules: false  # Whether to delete existing custom rules before copying new ones
+
+# Scan settings
+loki_scan_args: "--intense --csv --noprocscan --dontwait"
+loki_report_filename: "loki_scan_report.csv"
+
+# Report collection settings
+loki_report_dir: "/var/log/loki-reports"
+loki_report_name: "{{ ansible_date_time.iso8601 }}-scan-report.csv"

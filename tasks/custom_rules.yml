@@ -1,0 +1,62 @@
+---
+# Tasks for managing custom YARA rules
+
+- name: Ensure custom rules directory exists
+  ansible.builtin.file:
+    path: "{{ loki_custom_rules_dir }}"
+    state: directory
+    mode: '0755'
+  tags:
+    - loki_setup
+    - loki_rules
+
+- name: Remove existing custom rules if requested
+  ansible.builtin.file:
+    path: "{{ loki_custom_rules_dir }}"
+    state: absent
+  when: loki_delete_existing_custom_rules | bool
+  tags:
+    - loki_setup
+    - loki_rules
+
+- name: Recreate custom rules directory if it was deleted
+  ansible.builtin.file:
+    path: "{{ loki_custom_rules_dir }}"
+    state: directory
+    mode: '0755'
+  when: loki_delete_existing_custom_rules | bool
+  tags:
+    - loki_setup
+    - loki_rules
+
+- name: Copy custom YARA rules directory
+  ansible.builtin.copy:
+    src: "{{ loki_custom_rules_path }}/"
+    dest: "{{ loki_custom_rules_dir }}/"
+    mode: '0644'
+  when: loki_custom_rules_path != ""
+  tags:
+    - loki_setup
+    - loki_rules
+
+- name: Copy specific YARA rule files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ loki_custom_rules_dir }}/"
+    mode: '0644'
+  with_items: "{{ loki_custom_rules_files }}"
+  when: loki_custom_rules_files | length > 0
+  tags:
+    - loki_setup
+    - loki_rules
+
+- name: Verify YARA rules syntax
+  ansible.builtin.command:
+    cmd: "python3 {{ loki_install_dir }}/Loki/tools/rule-checker.py {{ loki_custom_rules_dir }}"
+    chdir: "{{ loki_install_dir }}/Loki"
+  register: yara_syntax_check
+  changed_when: false
+  failed_when: yara_syntax_check.rc != 0
+  tags:
+    - loki_setup
+    - loki_rules
