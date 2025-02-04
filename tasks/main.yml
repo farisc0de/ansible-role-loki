@@ -78,12 +78,15 @@
     state: directory
     mode: '0755'
 
-- name: Run Loki scan
-  ansible.builtin.command:
-    cmd: "python3 loki.py {{ loki_scan_args }}"
-    chdir: "{{ loki_install_dir }}/Loki"
-    creates: "{{ loki_install_dir }}/Loki/.last_scan"
-  register: loki_scan_result
-  changed_when: loki_scan_result.rc != 0 or loki_scan_result.stdout_lines | length > 0
-  notify: Touch last scan marker file
-  tags: loki_scan
+- name: Cleanup after test
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ loki_install_dir }}/Loki"
+    - "{{ loki_install_dir }}"
+    - "{{ loki_report_dir }}"
+  when: loki_cleanup_after_test | default(false)
+  tags: 
+    - loki_cleanup
+    - never
