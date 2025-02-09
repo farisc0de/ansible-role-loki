@@ -10,9 +10,16 @@
 
 - name: Install required packages (Debian/Ubuntu)
   ansible.builtin.apt:
-    name: "{{ required_packages }}"
+    name: "{{ loki_debian_packages }}"
     state: present
   when: ansible_os_family == "Debian"
+  tags: loki_setup
+
+- name: Install required packages (RedHat)
+  ansible.builtin.package:
+    name: "{{ loki_redhat_packages }}"
+    state: present
+  when: ansible_os_family == "RedHat"
   tags: loki_setup
 
 - name: Install EPEL repository (RedHat)

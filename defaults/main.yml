@@ -6,6 +6,21 @@ loki_install_dir: /opt/loki
 loki_git_repo: "https://github.com/Neo23x0/Loki.git"
 loki_git_version: "master"
 
+# Package requirements
+loki_debian_packages:
+  - git
+  - python3-dev
+  - python3-pip
+  - build-essential
+
+loki_redhat_packages:
+  - git
+  - python3-devel
+  - python3-pip
+  - gcc
+  - gcc-c++
+  - make
+
 # Custom YARA rules settings
 loki_custom_rules_dir: "{{ loki_install_dir }}/Loki/signature-base/3rdparty"
 loki_custom_rules_paths: []  # List of local paths to custom YARA rules directories

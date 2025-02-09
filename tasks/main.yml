@@ -35,10 +35,35 @@
   when: not loki_installed.stat.exists
   tags: loki_setup
 
+- name: Get list of required Python packages
+  ansible.builtin.command:
+    cmd: cat requirements.txt
+    chdir: "{{ loki_install_dir }}/Loki"
+  register: required_packages
+  changed_when: false
+  when: loki_installed.stat.exists
+  tags: loki_setup
+
+- name: Check installed Python packages
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: present
+    freeze: true
+  register: installed_packages
+  check_mode: true
+  failed_when: false
+  changed_when: false
+  with_items: "{{ required_packages.stdout_lines | default([]) }}"
+  when: loki_installed.stat.exists
+  tags: loki_setup
+
 - name: Install Python requirements
   ansible.builtin.pip:
     requirements: "{{ loki_install_dir }}/Loki/requirements.txt"
     state: present
+  when: >-
+    not loki_installed.stat.exists or
+    (installed_packages.results | default([]) | selectattr('failed', 'true') | list | length > 0)
   tags: loki_setup
 
 - name: Run Loki upgrader for signatures
