@@ -7,8 +7,8 @@ loki_git_repo: "https://github.com/Neo23x0/Loki.git"
 loki_git_version: "master"
 
 # Custom YARA rules settings
-loki_custom_rules_dir: "{{ loki_install_dir }}/Loki/signature-base/custom"
-loki_custom_rules_path: ""  # Local path to custom YARA rules directory
+loki_custom_rules_dir: "{{ loki_install_dir }}/Loki/signature-base/3rdparty"
+loki_custom_rules_paths: []  # List of local paths to custom YARA rules directories
 loki_custom_rules_files: []  # List of custom YARA rule files to copy
 loki_delete_existing_custom_rules: false  # Whether to delete existing custom rules before copying new ones
 

@@ -29,12 +29,13 @@
     - loki_setup
     - loki_rules
 
-- name: Copy custom YARA rules directory
+- name: Copy custom YARA rules directories
   ansible.builtin.copy:
-    src: "{{ loki_custom_rules_path }}/"
+    src: "{{ item }}/"
     dest: "{{ loki_custom_rules_dir }}/"
     mode: '0644'
-  when: loki_custom_rules_path != ""
+  with_items: "{{ loki_custom_rules_paths }}"
+  when: loki_custom_rules_paths | length > 0
   tags:
     - loki_setup
     - loki_rules

@@ -42,7 +42,7 @@
 
 - name: Include custom rules tasks
   ansible.builtin.include_tasks: custom_rules.yml
-  when: loki_custom_rules_path != "" or loki_custom_rules_files | length > 0
+  when: loki_custom_rules_paths | length > 0 or loki_custom_rules_files | length > 0
   tags:
     - loki_setup
     - loki_rules
