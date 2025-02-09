@@ -87,6 +87,6 @@
     - "{{ loki_install_dir }}"
     - "{{ loki_report_dir }}"
   when: loki_cleanup_after_test | default(false)
-  tags: 
+  tags:
     - loki_cleanup
     - never
