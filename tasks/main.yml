@@ -33,9 +33,9 @@
     state: present
   tags: loki_setup
 
-- name: Ensure signatures are up to date
+- name: Run Loki upgrader for signatures
   ansible.builtin.command:
-    cmd: python3 {{ loki_install_dir }}/Loki/tools/download-signatures.py
+    cmd: python3 {{ loki_install_dir }}/Loki/loki-upgrader.py
     chdir: "{{ loki_install_dir }}/Loki"
   changed_when: false
   tags: loki_update

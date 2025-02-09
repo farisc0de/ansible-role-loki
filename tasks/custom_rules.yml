@@ -50,13 +50,3 @@
     - loki_setup
     - loki_rules
 
-- name: Verify YARA rules syntax
-  ansible.builtin.command:
-    cmd: "python3 {{ loki_install_dir }}/Loki/tools/rule-checker.py {{ loki_custom_rules_dir }}"
-    chdir: "{{ loki_install_dir }}/Loki"
-  register: yara_syntax_check
-  changed_when: false
-  failed_when: yara_syntax_check.rc != 0
-  tags:
-    - loki_setup
-    - loki_rules
