@@ -116,7 +116,7 @@
 - name: Find latest Loki log file
   ansible.builtin.find:
     paths: "{{ loki_logs_dir }}"
-    patterns: "{{ inventory_hostname }}-loki_scan_*.log"
+    patterns: "loki_*_*.log"
     use_regex: false
   register: loki_log_files
   tags: loki_report
