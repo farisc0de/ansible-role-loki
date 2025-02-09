@@ -137,6 +137,7 @@
   with_items: "{{ loki_log_files.files | sort(attribute='mtime',reverse=true) | list }}"
   when: loki_log_files.matched > 0
   run_once: true
+  become: true
   tags: loki_report
 
 - name: Create handlers directory if it doesn't exist
