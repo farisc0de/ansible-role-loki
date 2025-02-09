@@ -15,5 +15,6 @@ loki_delete_existing_custom_rules: false  # Whether to delete existing custom ru
 # Scan settings
 loki_scan_args: "--intense --csv --noprocscan --dontwait"
 
-# Report collection settings
-loki_report_dir: "{{ ansible_env.HOME }}/loki-reports"
+# Logs and report settings
+loki_logs_dir: "{{ ansible_env.HOME }}/loki/logs"
+loki_report_dir: "{{ ansible_env.HOME }}/loki/reports"

@@ -89,13 +89,19 @@
   register: todays_loki_logs
   tags: loki_scan
 
+- name: Create logs directory
+  ansible.builtin.file:
+    path: "{{ loki_logs_dir }}"
+    state: directory
+    mode: '0755'
+  tags: loki_scan
+
 - name: Run Loki scan
   ansible.builtin.command:
-    cmd: "python3 loki.py {{ loki_scan_args }}"
+    cmd: "python3 loki.py {{ loki_scan_args }} --logfolder {{ loki_logs_dir }}"
     chdir: "{{ loki_install_dir }}/Loki"
   register: loki_scan_result
   changed_when: loki_scan_result.rc != 0 or loki_scan_result.stdout_lines | length > 0
-  when: todays_loki_logs.matched == 0
   tags: loki_scan
 
 - name: Create report directory on control node
@@ -109,10 +115,18 @@
 
 - name: Find latest Loki log file
   ansible.builtin.find:
-    paths: "{{ loki_install_dir }}/Loki"
-    patterns: "loki_*.log"
+    paths: "{{ loki_logs_dir }}"
+    patterns: "{{ inventory_hostname }}-loki_scan_*.log"
     use_regex: false
   register: loki_log_files
+  tags: loki_report
+
+- name: Debug - Show log files found
+  ansible.builtin.debug:
+    msg:
+      - "Number of files matched: {{ loki_log_files.matched }}"
+      - "Files found: {{ loki_log_files.files | map(attribute='path') | list }}"
+      - "Search path: {{ loki_install_dir }}/Loki"
   tags: loki_report
 
 - name: Fetch latest scan report
