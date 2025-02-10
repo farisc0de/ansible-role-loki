@@ -116,8 +116,8 @@
     path: "{{ loki_report_dir }}"
     state: directory
     mode: '0755'
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "{{ loki_report_user }}"
+    group: "{{ loki_report_user }}"
   delegate_to: localhost
   become: true
   tags: loki_report
