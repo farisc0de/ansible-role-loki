@@ -158,12 +158,6 @@
   become: true
   tags: loki_report
 
-- name: Create handlers directory if it doesn't exist
-  ansible.builtin.file:
-    path: "{{ playbook_dir }}/handlers"
-    state: directory
-    mode: '0755'
-
 - name: Cleanup after test
   ansible.builtin.file:
     path: "{{ item }}"
