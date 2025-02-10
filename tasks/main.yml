@@ -100,15 +100,11 @@
   tags: loki_scan
 
 - name: Run Loki scan
-  ansible.builtin.shell:
-    cmd: |
-      python3 loki.py {{ loki_scan_args }} --logfolder {{ loki_logs_dir }}
-      chmod 644 {{ loki_logs_dir }}/loki_*.log
-      chown {{ ansible_user }}:{{ ansible_user }} {{ loki_logs_dir }}/loki_*.log
+  ansible.builtin.command:
+    cmd: "python3 loki.py {{ loki_scan_args }} --logfolder {{ loki_logs_dir }}"
     chdir: "{{ loki_install_dir }}/Loki"
   register: loki_scan_result
   changed_when: loki_scan_result.rc != 0 or loki_scan_result.stdout_lines | length > 0
-  become: true
   tags: loki_scan
 
 - name: Create report directory on control node
